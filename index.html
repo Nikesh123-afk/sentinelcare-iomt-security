@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SentinelCare | IoMT Security Console</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+    :root {
+      --ink: #17221f;
+      --muted: #68726d;
+      --paper: #f3f6f1;
+      --panel: #ffffff;
+      --line: #dfe6df;
+      --green: #0b6b58;
+      --mint: #d7f3e6;
+      --lime: #b6d83f;
+      --red: #cc553f;
+      --amber: #d88a25;
+      --blue: #3675a4;
+      --shadow: 0 16px 45px rgba(26, 50, 39, .08);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: Manrope, sans-serif; }
+    button, select { font: inherit; }
+    .shell { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
+    aside { background: #152a25; color: #dce9e1; padding: 28px 18px; display: flex; flex-direction: column; }
+    .brand { display: flex; gap: 11px; align-items: center; margin: 0 10px 52px; }
+    .brand-mark { background: var(--lime); color: var(--ink); height: 34px; width: 34px; display: grid; place-items: center; border-radius: 10px; font-weight: 800; }
+    .brand strong { color: #fff; font-size: 15px; letter-spacing: -.3px; }
+    .brand small { display: block; color: #90a79d; font-size: 10px; margin-top: 2px; }
+    .nav-label { color: #728d82; font: 11px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 1px; margin: 0 12px 11px; }
+    nav { display: grid; gap: 6px; }
+    nav button { text-align: left; border: 0; background: transparent; color: #9fb3aa; padding: 12px 13px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+    nav button:hover, nav button.active { background: #24453c; color: #fff; }
+    nav button span { display: inline-block; width: 25px; color: #91b9a8; }
+    .side-foot { margin-top: auto; border-top: 1px solid #2b4840; padding: 18px 10px 0; color: #9fb3aa; font-size: 11px; line-height: 1.5; }
+    .pulse { display: inline-block; width: 7px; height: 7px; background: var(--lime); border-radius: 50%; margin-right: 6px; box-shadow: 0 0 0 4px rgba(182,216,63,.15); }
+    main { padding: 28px 38px 50px; max-width: 1560px; width: 100%; margin: auto; }
+    .topbar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; }
+    .eyebrow { color: var(--green); font: 11px 'DM Mono', monospace; letter-spacing: 1px; text-transform: uppercase; }
+    h1 { margin: 7px 0 5px; font-size: clamp(25px, 3vw, 37px); letter-spacing: -1.6px; line-height: 1.05; }
+    .subtitle { color: var(--muted); font-size: 13px; }
+    .top-actions { display: flex; gap: 9px; align-items: center; }
+    .status { font: 11px 'DM Mono', monospace; color: var(--green); background: var(--mint); padding: 9px 12px; border-radius: 5px; }
+    .icon-btn { width: 38px; height: 38px; border: 1px solid var(--line); background: var(--panel); border-radius: 7px; cursor: pointer; color: var(--ink); }
+    .icon-btn:hover { border-color: var(--green); color: var(--green); }
+    .grid { display: grid; gap: 16px; }
+    .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 16px; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 9px; box-shadow: var(--shadow); }
+    .metric { padding: 19px 20px; position: relative; overflow: hidden; }
+    .metric:after { content: ''; position: absolute; right: -13px; bottom: -22px; width: 75px; height: 75px; border: 14px solid var(--mint); border-radius: 50%; }
+    .metric .label { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; }
+    .metric strong { display: block; margin: 11px 0 7px; font: 500 29px 'DM Mono', monospace; letter-spacing: -2px; }
+    .trend { color: var(--green); font-size: 11px; }
+    .trend.bad { color: var(--red); }
+    .workspace { grid-template-columns: minmax(0, 1.7fr) minmax(300px, .9fr); align-items: start; }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; padding: 17px 19px; border-bottom: 1px solid var(--line); }
+    .panel-title { font-size: 14px; font-weight: 800; }
+    .panel-meta { color: var(--muted); font: 10px 'DM Mono', monospace; }
+    .chart-wrap { padding: 18px 20px 11px; }
+    .chart { height: 205px; position: relative; background: repeating-linear-gradient(to bottom, transparent 0, transparent 48px, #edf1ec 49px); border-bottom: 1px solid var(--line); overflow: hidden; }
+    .chart svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .chart-labels { display: flex; justify-content: space-between; color: #8a948f; font: 10px 'DM Mono', monospace; padding-top: 9px; }
+    .legend { display: flex; gap: 17px; font-size: 10px; color: var(--muted); }
+    .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+    .feed { padding: 0 19px 4px; }
+    .event { display: grid; grid-template-columns: 10px 1fr auto; gap: 10px; align-items: center; padding: 14px 0; border-bottom: 1px solid #edf0ec; }
+    .event:last-child { border-bottom: 0; }
+    .dot { width: 8px; height: 8px; background: var(--red); border-radius: 50%; }
+    .dot.warn { background: var(--amber); }
+    .event strong { display: block; font-size: 12px; }
+    .event small { color: var(--muted); font: 10px 'DM Mono', monospace; }
+    .severity { border-radius: 4px; padding: 5px 7px; font: 10px 'DM Mono', monospace; }
+    .high { color: var(--red); background: #fce9e4; } .medium { color: #a76814; background: #fff0d9; }
+    .lower { grid-template-columns: minmax(0, 1.7fr) minmax(300px, .9fr); margin-top: 16px; align-items: stretch; }
+    .table-wrap { overflow-x: auto; padding: 0 19px 5px; }
+    table { border-collapse: collapse; width: 100%; min-width: 540px; font-size: 11px; }
+    th { text-align: left; color: var(--muted); text-transform: uppercase; letter-spacing: .7px; font: 10px 'DM Mono', monospace; padding: 14px 8px; }
+    td { border-top: 1px solid #edf0ec; padding: 14px 8px; }
+    .device { font-weight: 800; } td small { display: block; color: var(--muted); font: 10px 'DM Mono', monospace; margin-top: 3px; }
+    .tag { font: 10px 'DM Mono', monospace; background: #edf4ef; color: var(--green); padding: 5px 7px; border-radius: 4px; }
+    .model-body { padding: 18px 19px; }
+    .model-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 12px; }
+    .model-row span:last-child { color: var(--green); font: 500 12px 'DM Mono', monospace; }
+    .bar { background: #e7ece7; height: 7px; border-radius: 8px; overflow: hidden; margin-top: 7px; }
+    .bar i { display: block; height: 100%; background: var(--green); border-radius: inherit; }
+    .model-note { background: #f3f7f1; border-left: 3px solid var(--lime); padding: 11px 12px; color: var(--muted); font-size: 11px; line-height: 1.45; margin-top: 20px; }
+    .simulate { margin-top: 16px; background: #17372f; color: #e8f4e8; border-radius: 9px; padding: 17px 19px; }
+    .simulate-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 13px; }
+    .simulate h2 { margin: 0; font-size: 14px; }
+    .simulate select { background: #275145; border: 1px solid #416c5d; color: #fff; padding: 8px; border-radius: 5px; font-size: 11px; }
+    .simulate-row { display: flex; gap: 9px; }
+    .simulate button { border: 0; background: var(--lime); color: var(--ink); font-weight: 800; padding: 9px 13px; border-radius: 5px; cursor: pointer; font-size: 11px; }
+    .simulate button:hover { background: #d0ef62; }
+    .sim-result { font: 10px 'DM Mono', monospace; color: #a8c9ba; margin-top: 11px; min-height: 14px; }
+    .view { display: none; }
+    .view.active { display: block; }
+    @media (max-width: 980px) { .shell { grid-template-columns: 74px 1fr; } aside { padding: 20px 9px; } .brand { margin: 0 auto 48px; } .brand div:not(.brand-mark), .nav-label, nav button:not(.active) { font-size: 0; } nav button { text-align: center; padding: 12px 5px; } nav button span { width: auto; font-size: 15px; } .side-foot { display: none; } main { padding: 24px; } }
+    @media (max-width: 720px) { .metrics, .workspace, .lower { grid-template-columns: 1fr 1fr; } .workspace, .lower { grid-template-columns: 1fr; } .topbar { gap: 16px; } .top-actions .status { display: none; } main { padding: 20px 15px 35px; } }
+    @media (max-width: 470px) { .metrics { grid-template-columns: 1fr 1fr; gap: 9px; } .metric { padding: 14px; } .metric strong { font-size: 22px; } .chart { height: 170px; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <div class="brand"><div class="brand-mark">SC</div><div><strong>SentinelCare</strong><small>IoMT DEFENSE LAB</small></div></div>
+      <div class="nav-label">Workspace</div>
+      <nav>
+        <button class="active" data-view="overview"><span>01</span>Overview</button>
+        <button data-view="incidents"><span>02</span>Incidents</button>
+        <button data-view="devices"><span>03</span>Device fleet</button>
+        <button data-view="model"><span>04</span>Model health</button>
+      </nav>
+      <div class="side-foot"><span class="pulse"></span>Research environment online<br><span style="padding-left:13px">Federated node 03 / EU-West</span></div>
+    </aside>
+    <main>
+      <section id="overview" class="view active">
+        <div class="topbar"><div><div class="eyebrow">Security operations / research prototype</div><h1>Network pulse</h1><div class="subtitle">Adversarial monitoring across the connected care environment.</div></div><div class="top-actions"><div class="status"><span class="pulse"></span>STREAMING</div><button class="icon-btn" id="pause" title="Pause event stream">||</button></div></div>
+        <div class="grid metrics">
+          <div class="panel metric"><div class="label">Detection accuracy</div><strong id="m-accuracy">99.80%</strong><div class="trend" id="m-accuracy-trend">+0.42% vs baseline</div></div>
+          <div class="panel metric"><div class="label">Active devices</div><strong>248</strong><div class="trend">+12 this week</div></div>
+          <div class="panel metric"><div class="label">Threats blocked</div><strong>1,284</strong><div class="trend">+18.6% today</div></div>
+          <div class="panel metric"><div class="label">Median latency</div><strong>84 ms</strong><div class="trend">Within 100 ms target</div></div>
+        </div>
+        <div class="grid workspace">
+          <div class="panel"><div class="panel-head"><div class="panel-title">Detection activity</div><div class="legend"><span><i style="background:#0b6b58"></i>benign</span><span><i style="background:#cc553f"></i>anomaly</span></div></div><div class="chart-wrap"><div class="chart"><svg viewBox="0 0 800 205" preserveAspectRatio="none" aria-label="Detection activity chart"><path d="M0 165 C35 160 42 135 78 145 S125 165 159 128 S202 146 235 120 S285 150 320 105 S366 132 399 111 S450 95 480 117 S521 85 555 101 S606 65 638 96 S688 55 720 74 S765 50 800 58 L800 205 L0 205Z" fill="#d7f3e6" opacity=".75"/><path d="M0 165 C35 160 42 135 78 145 S125 165 159 128 S202 146 235 120 S285 150 320 105 S366 132 399 111 S450 95 480 117 S521 85 555 101 S606 65 638 96 S688 55 720 74 S765 50 800 58" fill="none" stroke="#0b6b58" stroke-width="3"/><path d="M0 190 C55 188 63 178 100 185 S153 180 190 187 S244 179 280 184 S325 175 365 181 S420 170 450 177 S500 169 542 175 S585 160 620 172 S665 163 700 169 S748 151 800 158" fill="none" stroke="#cc553f" stroke-width="2" stroke-dasharray="5 5"/></svg></div><div class="chart-labels"><span>08:00</span><span>10:00</span><span>12:00</span><span>14:00</span><span>16:00</span><span>Now</span></div></div></div>
+          <div class="panel"><div class="panel-head"><div class="panel-title">Live signal feed</div><div class="panel-meta" id="feed-time">UPDATING</div></div><div class="feed" id="feed"><div class="event"><i class="dot"></i><div><strong>FGSM pattern intercepted</strong><small>Infusion Pump 04 / 14:32:08</small></div><span class="severity high">HIGH</span></div><div class="event"><i class="dot warn"></i><div><strong>Unusual telemetry burst</strong><small>Patient Monitor 12 / 14:31:44</small></div><span class="severity medium">MEDIUM</span></div><div class="event"><i class="dot"></i><div><strong>Credential anomaly contained</strong><small>Gateway Node 03 / 14:30:19</small></div><span class="severity high">HIGH</span></div><div class="event"><i class="dot warn"></i><div><strong>Model drift threshold reached</strong><small>Federated Cluster / 14:28:02</small></div><span class="severity medium">MEDIUM</span></div></div></div>
+        </div>
+        <div class="grid lower"><div class="panel"><div class="panel-head"><div class="panel-title">Priority incidents</div><button class="icon-btn" title="Refresh incidents" id="refresh">↻</button></div><div class="table-wrap"><table><thead><tr><th>Asset</th><th>Signal</th><th>Confidence</th><th>Status</th></tr></thead><tbody id="incident-table"><tr><td><span class="device">Infusion Pump 04</span><small>WARD-B / IP-204</small></td><td>Adversarial input</td><td>98.7%</td><td><span class="tag">Contained</span></td></tr><tr><td><span class="device">Gateway Node 03</span><small>CLOUD / GW-003</small></td><td>Credential abuse</td><td>96.2%</td><td><span class="tag">Investigating</span></td></tr><tr><td><span class="device">Patient Monitor 12</span><small>ICU-A / PM-012</small></td><td>Traffic anomaly</td><td>91.4%</td><td><span class="tag">Observed</span></td></tr></tbody></table></div></div>
+          <div class="panel"><div class="panel-head"><div class="panel-title">Model health</div><div class="panel-meta" id="m-model-tag">HYBRID CNN-LSTM</div></div><div class="model-body"><div class="model-row"><span>Precision</span><span id="m-precision">99.4%</span></div><div class="bar"><i id="m-precision-bar" style="width:99.4%"></i></div><div class="model-row" style="margin-top:17px"><span>Recall</span><span id="m-recall">98.9%</span></div><div class="bar"><i id="m-recall-bar" style="width:98.9%"></i></div><div class="model-row" style="margin-top:17px"><span>Federated nodes</span><span>03 / 03</span></div><div class="bar"><i style="width:100%"></i></div><div class="model-note" id="m-note">Attention layer is stable. Last validation: CICIoMT2024, 5-fold cross-validation.</div></div></div></div>
+        <div class="simulate"><div class="simulate-head"><h2>Adversarial test bench</h2><div class="panel-meta" style="color:#a8c9ba">SIMULATION ONLY</div></div><div class="simulate-row"><select id="attack"><option>FGSM / epsilon 0.1</option><option>Carlini & Wagner / Linf</option><option>PGD / 10 iterations</option><option>HopSkipJump / black-box</option></select><button id="run">Run test</button></div><div class="sim-result" id="result">Select an attack vector to validate model resilience.</div></div>
+      </section>
+      <section id="incidents" class="view"><div class="topbar"><div><div class="eyebrow">Security operations</div><h1>Incident queue</h1><div class="subtitle">Review and triage signals raised by the detection layer.</div></div></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Asset</th><th>Signal</th><th>Confidence</th><th>Status</th></tr></thead><tbody><tr><td><span class="device">Infusion Pump 04</span><small>WARD-B / IP-204</small></td><td>Adversarial input</td><td>98.7%</td><td><span class="tag">Contained</span></td></tr><tr><td><span class="device">Gateway Node 03</span><small>CLOUD / GW-003</small></td><td>Credential abuse</td><td>96.2%</td><td><span class="tag">Investigating</span></td></tr><tr><td><span class="device">Patient Monitor 12</span><small>ICU-A / PM-012</small></td><td>Traffic anomaly</td><td>91.4%</td><td><span class="tag">Observed</span></td></tr></tbody></table></div></div></section>
+      <section id="devices" class="view"><div class="topbar"><div><div class="eyebrow">Asset intelligence</div><h1>Device fleet</h1><div class="subtitle">248 connected assets reporting to three federated nodes.</div></div></div><div class="grid metrics"><div class="panel metric"><div class="label">Infusion pumps</div><strong>84</strong><div class="trend">All reporting</div></div><div class="panel metric"><div class="label">Patient monitors</div><strong>112</strong><div class="trend">2 need review</div></div><div class="panel metric"><div class="label">Gateways</div><strong>18</strong><div class="trend">All protected</div></div><div class="panel metric"><div class="label">Other IoMT</div><strong>34</strong><div class="trend">Healthy</div></div></div></section>
+      <section id="model" class="view"><div class="topbar"><div><div class="eyebrow" id="m-eyebrow">Adversarial robustness</div><h1>Model health</h1><div class="subtitle" id="m-subtitle">Hybrid CNN-LSTM-Attention evaluation against healthcare IoT traffic.</div></div></div><div class="panel model-body"><div class="model-row"><span>Test-set accuracy</span><span id="m2-accuracy">99.80%</span></div><div class="bar"><i id="m2-accuracy-bar" style="width:99.8%"></i></div><div class="model-row" style="margin-top:22px"><span>Recall (attack sensitivity)</span><span id="m2-recall">90.00%</span></div><div class="bar"><i id="m2-recall-bar" style="width:90%"></i></div><div class="model-row" style="margin-top:22px"><span>False positive rate</span><span id="m2-fpr">40.00%</span></div><div class="bar"><i id="m2-fpr-bar" style="width:40%"></i></div><div class="model-note" id="m2-note">Research target: inference latency below 100 ms with privacy-preserving federated training. Metrics shown are based on the supplied project report and presentation.</div></div></section>
+    </main>
+  </div>
+  <script>
+    const navButtons = document.querySelectorAll('nav button');
+    const views = document.querySelectorAll('.view');
+    navButtons.forEach(button => button.addEventListener('click', () => { navButtons.forEach(item => item.classList.remove('active')); button.classList.add('active'); views.forEach(view => view.classList.toggle('active', view.id === button.dataset.view)); }));
+    const result = document.getElementById('result');
+    const feed = document.getElementById('feed');
+    let streamPaused = false;
+    let apiConnected = false;
+    const liveSignals = [
+      ['Encrypted flow verified', 'Ventilator 07 / live', 'LOW', 'warn'],
+      ['FGSM pattern intercepted', 'Infusion Pump 04 / live', 'HIGH', ''],
+      ['Unusual telemetry burst', 'Patient Monitor 12 / live', 'MEDIUM', 'warn'],
+      ['Credential anomaly contained', 'Gateway Node 03 / live', 'HIGH', '']
+    ];
+    function addLiveSignal() {
+      if (streamPaused || apiConnected) return;
+      const signal = liveSignals[Math.floor(Math.random() * liveSignals.length)];
+      addSignal({ title: signal[0], device: signal[1], severity: signal[2], tone: signal[3] });
+    }
+    function addSignal(signal) {
+      if (streamPaused) return;
+      const event = document.createElement('div');
+      event.className = 'event';
+      const tone = signal.tone || (signal.severity === 'HIGH' ? '' : 'warn');
+      event.innerHTML = '<i class="dot ' + tone + '"></i><div><strong>' + signal.title + '</strong><small>' + signal.device + '</small></div><span class="severity ' + (signal.severity === 'HIGH' ? 'high' : 'medium') + '">' + signal.severity + '</span>';
+      feed.prepend(event);
+      while (feed.children.length > 4) feed.lastElementChild.remove();
+      document.getElementById('feed-time').textContent = 'LIVE ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    fetch('/api/metrics').then(r => r.json()).then(m => {
+      if (!m.trained) return;
+      const pct = v => (v * 100).toFixed(2) + '%';
+      document.getElementById('m-accuracy').textContent = pct(m.accuracy);
+      document.getElementById('m-accuracy-trend').textContent = m.n_test + ' held-out test rows';
+      document.getElementById('m-model-tag').textContent = 'RANDOM FOREST (LIVE)';
+      document.getElementById('m-precision').textContent = pct(m.precision);
+      document.getElementById('m-precision-bar').style.width = pct(m.precision);
+      document.getElementById('m-recall').textContent = pct(m.recall);
+      document.getElementById('m-recall-bar').style.width = pct(m.recall);
+      document.getElementById('m-note').textContent = 'Real model trained on ' + m.dataset + '. ' + m.n_train + ' training rows, ' + m.n_features + ' traffic features. Federated aggregation across nodes is conceptual (future work), not implemented here.';
+      document.getElementById('m-eyebrow').textContent = 'Live model evaluation';
+      document.getElementById('m-subtitle').textContent = m.model + ' evaluated on held-out ' + m.dataset + ' traffic.';
+      document.getElementById('m2-accuracy').textContent = pct(m.accuracy);
+      document.getElementById('m2-accuracy-bar').style.width = pct(m.accuracy);
+      document.getElementById('m2-recall').textContent = pct(m.recall);
+      document.getElementById('m2-recall-bar').style.width = pct(m.recall);
+      document.getElementById('m2-fpr').textContent = pct(m.false_positive_rate);
+      document.getElementById('m2-fpr-bar').style.width = pct(m.false_positive_rate);
+      document.getElementById('m2-note').textContent = 'These are real metrics computed on a held-out test split (confusion matrix: TP ' + m.confusion_matrix.tp + ', FP ' + m.confusion_matrix.fp + ', FN ' + m.confusion_matrix.fn + ', TN ' + m.confusion_matrix.tn + '). The adversarial test bench below remains a simulated stand-in; real perturbation-based attacks were out of scope for this build.';
+    }).catch(() => {});
+    if (window.EventSource) {
+      const stream = new EventSource('/api/stream');
+      stream.onopen = () => { apiConnected = true; document.getElementById('feed-time').textContent = 'API LIVE'; };
+      stream.onmessage = event => addSignal(JSON.parse(event.data));
+      stream.onerror = () => { apiConnected = false; };
+    }
+    setInterval(addLiveSignal, 4000);
+    document.getElementById('run').addEventListener('click', () => { const attack = document.getElementById('attack').value.split(' / ')[0]; result.textContent = 'Running ' + attack + ' against the staging model...'; setTimeout(() => { result.textContent = attack + ' test contained. Model confidence 94.8% | latency 87 ms | no device action taken.'; }, 900); });
+    document.getElementById('pause').addEventListener('click', event => { streamPaused = !streamPaused; event.currentTarget.textContent = streamPaused ? '>' : '||'; document.getElementById('feed-time').textContent = streamPaused ? 'PAUSED' : 'LIVE NOW'; });
+    document.getElementById('refresh').addEventListener('click', event => { event.currentTarget.textContent = '...'; setTimeout(() => event.currentTarget.textContent = '↻', 500); });
+  </script>
+</body>
+</html>
