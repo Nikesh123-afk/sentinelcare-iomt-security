@@ -1,0 +1,18 @@
+{
+  "dataset": "N-BaIoT (UCI ML Repository, Meidan et al. 2018)",
+  "model": "RandomForestClassifier(n_estimators=200, max_depth=14)",
+  "n_train": 57000,
+  "n_test": 19000,
+  "n_features": 115,
+  "accuracy": 0.9999,
+  "precision": 1.0,
+  "recall": 0.9998,
+  "f1": 0.9999,
+  "false_positive_rate": 0.0,
+  "confusion_matrix": {
+    "tn": 9000,
+    "fp": 0,
+    "fn": 2,
+    "tp": 9998
+  }
+}
