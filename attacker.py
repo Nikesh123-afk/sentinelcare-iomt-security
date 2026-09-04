@@ -72,6 +72,11 @@ def main():
         try:
             result = classify(base_url, row["features"], f"Attacker-rig ({ATTACKER_NAME})")
         except urllib.error.URLError as exc:
+            if isinstance(exc, urllib.error.HTTPError) and exc.code == 403:
+                details = json.loads(exc.read())
+                print(f"[{i:02d}/{len(sample)}] BLOCKED by dashboard: {details['reason']} "
+                      f"(retry in {details['retry_after']}s)")
+                break
             print(f"[{i}] send failed: {exc}")
             time.sleep(args.interval)
             continue

@@ -17,6 +17,7 @@ SentinelCare is a research prototype for monitoring and detecting threats in con
 - Incident feed with severity, device, and confidence information
 - Device fleet and model-health views
 - Server-sent event stream for real-time detection updates
+- Temporary application-layer quarantine for a source IP after a live attack prediction
 - REST endpoints for health checks, metrics, and authorized lab events
 - Random Forest intrusion-detection model for benign and botnet traffic
 - Evaluation metrics calculated on a held-out test split
@@ -86,12 +87,18 @@ The script creates these files in `ml/artifacts/`:
 
 The server reads `metrics.json` and `test_sample.csv` to display model metrics and stream held-out predictions.
 
+## Automated Response
+
+When `/api/classify` receives a live feature vector and the model predicts an attack, the server records the event and temporarily quarantines the source IP for 60 seconds. Further live classification requests from that IP receive an HTTP `403` response until the quarantine expires. This is an application-layer lab response; it does not change the Windows firewall or disconnect a physical device.
+
 ## API Endpoints
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
 | `GET` | `/api/health` | Check whether the local service is online |
 | `GET` | `/api/metrics` | Return trained-model metrics, when available |
+| `GET` | `/api/devices` | Return per-device evaluation results (test rows, accuracy, attack families) from the held-out split |
+| `GET` | `/api/incidents` | Return the rolling log of recent model-flagged and reported incidents |
 | `GET` | `/api/stream` | Subscribe to server-sent detection events |
 | `POST` | `/api/events` | Submit an authorized lab detection event |
 
@@ -109,7 +116,7 @@ Example event:
 
 - The federated-learning workflow is currently conceptual and is not implemented.
 - The adversarial test bench returns simulated results and does not run real perturbation attacks.
-- The default server is designed for local research use and does not include production authentication, HTTPS, or persistent storage.
+- The quarantine response is in-memory and resets when the server restarts; the server does not include production authentication, HTTPS, or persistent storage.
 - Model results depend on the dataset split and should not be interpreted as production clinical-security guarantees.
 
 ## Research Materials
